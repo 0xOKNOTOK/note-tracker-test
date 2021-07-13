@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Note from './components/Note';
 import noteService from './services/notes';
+import Notification from './components/Notification';
 import axios from 'axios';
 
 function App() {
     const [notesList, setNotes] = useState([]);
     const [newNote, setNewNote] = useState('a new note...');
     const [showAll, setShowAll] = useState(true);
+    const [errorMessage, setErrorMessage] = useState(null);
 
     useEffect(() => {
         noteService.getAll().then((initialNotes) => {
@@ -29,9 +31,12 @@ function App() {
                 );
             })
             .catch((error) => {
-                alert(
-                    `the note ${note.content} was already deleted from the server.`
+                setErrorMessage(
+                    `Note ${note.content} was already removed from the server.`
                 );
+                setTimeout(() => {
+                    setErrorMessage(null);
+                }, 5000);
                 setNotes(notesList.filter((n) => n.id !== id));
             });
     };
@@ -62,7 +67,7 @@ function App() {
     return (
         <div className="App">
             <h1>Notes</h1>
-
+            <Notification message={errorMessage} />
             <div>
                 <button onClick={() => setShowAll(!showAll)}>
                     show {showAll ? 'important' : 'all'}
